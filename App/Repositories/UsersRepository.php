@@ -8,8 +8,8 @@ use App\Models\User;
 
 #[a\Table(model:User::class)]
 class UsersRepository extends Repository {
-    function getLastInserted(){
-        return $this->where("id", "=", $this->lastInsertId())->single();
+    function getLastInserted(bool $cast_to_model = true){
+        return $this->where("id", "=", $this->lastInsertId())->single($cast_to_model);
     }
 }
 ?>

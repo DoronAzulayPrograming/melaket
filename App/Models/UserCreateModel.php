@@ -14,5 +14,11 @@ class UserCreateModel extends AutoConstruct {
     function rolesToString() : string {
         return implode(",", $this->roles);
     }
+
+    function getModelForDb() : array {
+        $arr = (array) $this;
+        $arr["roles"] = $this->rolesToString();
+        return $arr;
+    }
 }
 ?>

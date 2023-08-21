@@ -9,20 +9,38 @@ use DafCore\ApiController;
 use DafCore\Controller\Attributes as a;
 use DafCore\RequestBody;
 use DafDb\DateOnly;
+use App\Middlewheres\Auth;
+use App\Services\JwtService;
+use DafCore\Request;
 
 #[a\Route(prefix:"api")]
 class AccountsApiController extends ApiController {
     private array $roles = ["admin"=>1,"subAdmin"=>1,"member"=>1];
 
-    function __construct(public UsersRepository $repo) {
+    function __construct(
+        public JwtService $jwt,
+        public UsersRepository $repo,
+    ) {
         // TODO Code 
     }
 
     // GET: /api/Accounts
+    #[Auth]
     #[a\HttpGet]
-    function index(){
+    function index(Request $req){
         // TODO Code 
-        return $this->ok(empty($res = $this->repo->many()) ? "[]" : $res);
+        // $res = $this->repo->many(false);
+        // if(empty($res))
+        //     return $this->ok("[]");
+
+        // $res = array_map(function($user){
+        //     unset($user["password"]);
+        //     $user["roles"] = explode(",", $user["roles"]);
+        //     return $user;
+        // }, $res);
+        
+        //return $this->ok($res);
+        return $this->ok($req->user);
     }
 
     // GET: /api/Accounts/5
@@ -33,15 +51,15 @@ class AccountsApiController extends ApiController {
         }
 
         try {
-            $user = $this->repo->where("id","=",$id)->single();
+            $user = $this->repo->where("id","=",$id)->single(false);
         } catch (\Exception $ex) {
             return $this->internalError("<h1>Error ". $ex->getMessage() ."</h1>");
         }
 
-        $res = get_object_vars($user);
-        $res["roles"] = explode(",", $user->roles);
+        $user["roles"] = explode(",", $user["roles"]);
+        unset($user["password"]);
 
-        return $this->ok($res);
+        return $this->ok($user);
     }
 
     // PUT: /api/Accounts/5
@@ -103,12 +121,16 @@ class AccountsApiController extends ApiController {
         if($this->repo->existsWhere("email","=", $body->email)){
             return $this->badRequset("email already exist.!");
         }
-        $model = get_object_vars($body);
-        $model["roles"] = $body->rolesToString();
+
+        $model = $body->getModelForDb();
+        $model["password"] = $this->hash_password($body->password);
 
         try {
             $this->repo->insert($model)->execute();
-            $res = $this->repo->getLastInserted();
+            $res = $this->repo->getLastInserted(false);
+            $res["roles"] = explode(",", $res["roles"]);
+
+            unset($res["password"]);
         } catch (\Exception $ex) {
             return $this->internalError("<h1>Error ". $ex->getMessage() ."</h1>");
         }
@@ -130,6 +152,45 @@ class AccountsApiController extends ApiController {
         }
         
         return $this->noContent();
+    }
+
+    
+    // POST: /api/Accounts
+    #[a\HttpPost("login")]
+    function login(RequestBody $body){
+        if(!isset($body->email) || !isset($body->password) || empty($body->email) || empty($body->password)){
+            return $this->badRequset("email and password are requierd");
+        }
+
+        if(!$this->repo->existsWhere("email", "=", $body->email)){
+            return $this->notFound("user with email:".$body->email." not found");
+        }
+
+        $user = $this->repo->where("email","=",$body->email)->single(false);
+        if(!$this->verify_password($body->password, $user["password"])){
+            return $this->badRequset("incorrect password");
+        }
+        
+        $user["roles"] = explode(",", $user["roles"]);
+        unset($user["password"]);
+        unset($user["createDate"]);
+        $user['token'] = $this->jwt->generateToken($user);
+        
+        return $this->ok($user);
+    }
+
+    private function hash_password($password)
+    {
+      // Hash the password using the bcrypt algorithm with the generated salt
+      $hash = password_hash($password, PASSWORD_BCRYPT);
+  
+      // Return the hashed password
+      return $hash;
+    }
+  
+    function verify_password($password, $hash)
+    {
+      return password_verify($password, $hash);
     }
 }
 ?>

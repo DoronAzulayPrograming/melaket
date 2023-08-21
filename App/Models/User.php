@@ -14,20 +14,20 @@ class User extends AutoConstruct {
     #[a\Unique]
     #[a\NotNull]
     #[a\Length(191)]
-    #[a\DefaultValue]
+    #[a\DefaultValue('')]
     public string $email;
 
     #[a\NotNull]
     #[a\Length(255)]
-    #[a\DefaultValue]
+    #[a\DefaultValue('')]
     public string $password;
 
     #[a\NotNull]
-    #[a\DefaultValue]
+    #[a\DefaultValue('')]
     public string $roles;
 
     #[a\NotNull]
-    #[a\DefaultValue]
+    #[a\DefaultValue('CURRENT_DATE')]
     public DateOnly $createDate;
 
     public function setCreateDate(string $date){
