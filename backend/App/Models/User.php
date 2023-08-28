@@ -1,9 +1,13 @@
 <?php 
 namespace App\Models; 
 
+use DafCore as attr;
+use App\Models\Business;
 use DafDb as a;
 use DafCore\AutoConstruct;
+use DafCore\AutoConstruct as json;
 use DafDb\DateOnly;
+use DafDb\OnDeleteAction;
 
 class User extends AutoConstruct { 
 
@@ -11,12 +15,17 @@ class User extends AutoConstruct {
     #[a\AutoIncrement]
     public int $id;
 
+    #[a\NotNull]
+    #[a\ForeignKey('Business','id', OnDeleteAction::CASCADE->value)]
+    public int $businessId;
+
     #[a\Unique]
     #[a\NotNull]
     #[a\Length(191)]
     #[a\DefaultValue('')]
     public string $email;
 
+    #[json\Ignore]
     #[a\NotNull]
     #[a\Length(255)]
     #[a\DefaultValue('')]
@@ -33,6 +42,18 @@ class User extends AutoConstruct {
     public function setCreateDate(string $date){
         $this->createDate = new DateOnly($date);
     }
+    
+    #[a\DbInclude('Business','Business.id = Users.businessId')]
+    public Business $business;
+
+    #[a\DbIgnore]
+    #[json\Name("roles")]
+    public array $roleList;
+
+    public function onAfterLoad()
+    {
+        $this->roleList = explode(",", $this->roles);
+    }
 }
 
 class UserValidation {
@@ -43,12 +64,28 @@ class UserValidation {
         $status = true;
 
         if(!isset($user->id) || $user->id != 0){
-            $msg .= "id field need to be 0 on create";
+            $msg .= "מזהה הינו שדה חובה ונדרש לערך 0";
             $status = false;
         }
 
-        if(empty($user->email) || strlen($user->email) > 191){
-            $msg .= "email field is required and has to be no longet then 191 charecters";
+        if(!isset($user->businessId) || (!is_int($user->businessId) || $user->businessId < 1))
+        {
+            $msg .= "businessId is required, can't be empty, and must be an integer.";
+            $status = false;
+        }
+
+        if(empty($user->email)){
+            $msg .= "כתובת אימייל הינה שדה חובה";
+            $status = false;
+        }
+
+        if($status && strlen($user->email) > 191){
+            $msg .= "כתובת אימייל לא יכולה להכיל יותר מ 191 תווים";
+            $status = false;
+        }
+
+        if($status && !filter_var($user->email, FILTER_VALIDATE_EMAIL)){
+            $msg .= "כתובת אימייל לא תקינה";
             $status = false;
         }
 

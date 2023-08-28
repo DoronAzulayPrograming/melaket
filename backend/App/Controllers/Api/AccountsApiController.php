@@ -1,6 +1,7 @@
 <?php
 namespace App\Controllers\Api;
 
+use App\Models\Business;
 use App\Models\User;
 use App\Models\UserCreateModel;
 use App\Models\UserValidation;
@@ -10,6 +11,7 @@ use DafCore\Controller\Attributes as a;
 use DafCore\RequestBody;
 use DafDb\DateOnly;
 use App\Middlewheres\Auth;
+use App\Repositories\BusinessRepository;
 use App\Services\JwtService;
 use DafCore\Request;
 
@@ -20,54 +22,44 @@ class AccountsApiController extends ApiController {
     function __construct(
         public JwtService $jwt,
         public UsersRepository $repo,
-    ) {
-        // TODO Code 
-    }
+        public BusinessRepository $brepo,
+    ) { }
 
     // GET: /api/Accounts
-    #[Auth]
     #[a\HttpGet]
-    function index(Request $req){
-        // TODO Code 
-        // $res = $this->repo->many(false);
-        // if(empty($res))
-        //     return $this->ok("[]");
+    function index(){
+        $res = $this->repo->include("business")->many();
 
-        // $res = array_map(function($user){
-        //     unset($user["password"]);
-        //     $user["roles"] = explode(",", $user["roles"]);
-        //     return $user;
-        // }, $res);
-        
-        //return $this->ok($res);
-        return $this->ok($req->user);
+        if(empty($res))
+            return $this->ok("[]");
+            
+        return $this->ok($res);
     }
 
     // GET: /api/Accounts/5
     #[a\HttpGet(":id")]
     function details(int $id){
         if(!$this->repo->existsWhere("id","=",$id)){
-            return $this->notFound("user with id:$id not found");
+            return $this->notFound("משתמש עם מזהה $id לא נימצא");
         }
 
         try {
-            $user = $this->repo->where("id","=",$id)->single(false);
+            $user = $this->repo->include("business")->where("id","=",$id)->single();
         } catch (\Exception $ex) {
             return $this->internalError("<h1>Error ". $ex->getMessage() ."</h1>");
         }
-
-        $user["roles"] = explode(",", $user["roles"]);
-        unset($user["password"]);
-
+        
         return $this->ok($user);
     }
 
     // PUT: /api/Accounts/5
     #[a\HttpPut(":id")]
     function update(int $id, RequestBody $body){
-        // TODO Code 
         if(!isset($body->id) || $body->id != $id)
             return $this->badRequset("id and body id not match.!");
+
+        if(isset($body->password))
+            unset($body->password);
 
         if(isset($body->createDate))
             unset($body->createDate);
@@ -77,7 +69,7 @@ class AccountsApiController extends ApiController {
                 return $this->badRequset("roles need to be array of strings.!");
 
             if(count($body->roles) < 1)
-                return $this->badRequset("roles need to include atlist one value");
+                return $this->badRequset("roles need to include at least one value");
 
             foreach ($body->roles as $role) {
                 if(!array_key_exists($role, $this->roles))
@@ -91,35 +83,32 @@ class AccountsApiController extends ApiController {
 
         foreach ($body as $key => $value) {
             if(!array_key_exists($key, $model_vars))
-                return $this->badRequset("body include unknon props.!");
+                return $this->badRequset("בקשה מכילה תכונות לא ידועות");
         }
 
         try {
             $this->repo->update($body)->where("id","=",$id)->execute();
+            $res = $this->repo->include("business")->where("id","=",$id)->single();
         } catch (\Exception $ex) {
             return $this->internalError("<h1>Error ". $ex->getMessage() ."</h1>");
         }
 
-        return $this->noContent();
+        return $this->ok($res);
     }
 
     // POST: /api/Accounts
     #[a\HttpPost]
     function create(UserCreateModel $body){
-        $body->id = 0;
-        $body->createDate = DateOnly::Now();
 
-        if(!UserValidation::Post($body)){
-            return $this->badRequset(UserValidation::$error);
-        }
+        $body->createDate = DateOnly::Now();
 
         foreach ($body->roles as $role) {
             if(!array_key_exists($role, $this->roles))
-                return $this->badRequset("roles contain unknon role");
+                return $this->badRequset("הרשאות מכילות הרשאה לא ידוע");
         }
 
         if($this->repo->existsWhere("email","=", $body->email)){
-            return $this->badRequset("email already exist.!");
+            return $this->badRequset("אימייל קיים במערכת.!");
         }
 
         $model = $body->getModelForDb();
@@ -127,10 +116,7 @@ class AccountsApiController extends ApiController {
 
         try {
             $this->repo->insert($model)->execute();
-            $res = $this->repo->getLastInserted(false);
-            $res["roles"] = explode(",", $res["roles"]);
-
-            unset($res["password"]);
+            $res = $this->repo->getLastInserted();
         } catch (\Exception $ex) {
             return $this->internalError("<h1>Error ". $ex->getMessage() ."</h1>");
         }
@@ -153,28 +139,28 @@ class AccountsApiController extends ApiController {
         
         return $this->noContent();
     }
-
     
     // POST: /api/Accounts
     #[a\HttpPost("login")]
     function login(RequestBody $body){
         if(!isset($body->email) || !isset($body->password) || empty($body->email) || empty($body->password)){
-            return $this->badRequset("email and password are requierd");
+            return $this->badRequset("אימייל וסיסמא נדרשים");
         }
 
         if(!$this->repo->existsWhere("email", "=", $body->email)){
-            return $this->notFound("user with email:".$body->email." not found");
+            return $this->notFound("משתמש עם אימייל:".$body->email." לא נמצא");
         }
 
         $user = $this->repo->where("email","=",$body->email)->single(false);
         if(!$this->verify_password($body->password, $user["password"])){
-            return $this->badRequset("incorrect password");
+            return $this->badRequset("סיסמא שגויה");
         }
         
         $user["roles"] = explode(",", $user["roles"]);
         unset($user["password"]);
         unset($user["createDate"]);
         $user['token'] = $this->jwt->generateToken($user);
+        $user['expiryTime'] = $this->jwt->get_last_expiration_time();
         
         return $this->ok($user);
     }

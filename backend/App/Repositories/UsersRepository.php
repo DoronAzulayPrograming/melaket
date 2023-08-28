@@ -9,7 +9,7 @@ use App\Models\User;
 #[a\Table(model:User::class)]
 class UsersRepository extends Repository {
     function getLastInserted(bool $cast_to_model = true){
-        return $this->where("id", "=", $this->lastInsertId())->single($cast_to_model);
+        return $this->include("business")->where("id", "=", $this->lastInsertId())->single($cast_to_model);
     }
 }
 ?>
