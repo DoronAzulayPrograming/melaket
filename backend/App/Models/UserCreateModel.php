@@ -15,6 +15,11 @@ class UserCreateModel extends AutoConstruct {
     #[\DafCore\NotNull]
     #[\DafCore\Range(min:1)]
     public int $businessId;
+    
+    #[\DafCore\Length(100)]
+    #[\DafCore\NotNull]
+    #[\DafCore\NotEmpty]
+    public string $name;
 
     #[\DafCore\DisplayName("אימייל")]
     #[\DafCore\NotNull]

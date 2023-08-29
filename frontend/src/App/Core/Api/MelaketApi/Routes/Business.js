@@ -1,6 +1,6 @@
 import Route from "../../Route"
 
-export default class UsersRoute {
+export default class BusinessRoute {
     #base
     constructor(route) {
         this.route = route
@@ -16,18 +16,13 @@ export default class UsersRoute {
     async getAsync() {
         return this.#base.getAsync(this.route);
     }
-
-    async getAsyncById(id) {
-        return this.#base.getAsync(`${this.route}/${id}`);
-    }
-
+    
     async postAsync(data) {
         return this.#base.postAsync(`${this.route}`, data);
     }
 
     async putAsync(data) {
-        const response = await this.#base.putAsync(`${this.route}/${data.id}`, data)
-        return response.json();
+        await this.#base.putAsync(`${this.route}/${data.id}`, data);
     }
 
     async deleteAsync(id) {

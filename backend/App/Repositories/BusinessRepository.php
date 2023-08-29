@@ -18,10 +18,9 @@ class BusinessRepository extends Repository {
             $this->customQuery(
             "INSERT INTO `".$this->tableName."` 
             (`id`, `name`, `email`, `codeBinaHost`, `codeBinaUser`, `codeBinaPassword`, `customerNoInBina`, `createDate`)
-             VALUES ('1', '', '', '', '', '', '0', '');"
+             VALUES ('1', 'מערכת', '', '', '', '', '0', '');"
             );
-        }
-            
+        }   
     }
 
     function getLastInserted(){

@@ -19,6 +19,11 @@ class User extends AutoConstruct {
     #[a\ForeignKey('Business','id', OnDeleteAction::CASCADE->value)]
     public int $businessId;
 
+    #[a\NotNull]
+    #[a\Length(100)]
+    #[a\DefaultValue('')]
+    public string $name;
+
     #[a\Unique]
     #[a\NotNull]
     #[a\Length(191)]

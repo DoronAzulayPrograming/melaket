@@ -88,7 +88,7 @@ export default class Route {
         this.#removeAuthHeader();
 
         if (response.ok) {
-            return await response.json();
+            return response;
         } else if (response.status === 500) {
             throw new Error("שגיאת שרת פנימית");
         } else if (response.status === 404) {

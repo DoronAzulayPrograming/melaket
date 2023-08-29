@@ -4,11 +4,17 @@ import { secureLocalStorage } from './SecureStorage'
 export const AuthContext = createContext();
 
 export default function AuthProvider({ children }) {
+    const [user, setLUser] = useState(secureLocalStorage.getItem('u'));
     const [isLoggedIn, setIsLoggedIn] = useState(secureLocalStorage.getToken() ? true : false);
     const [roles, setRoles] = useState(secureLocalStorage.getUserRoles() || []);
 
+    function setUser(user){
+      secureLocalStorage.setItem('u', user)
+      setLUser(user)
+    }
+
     return (
-        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, roles, setRoles }}>
+        <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, roles, setRoles, user, setUser }}>
             {children}
         </AuthContext.Provider>
     );

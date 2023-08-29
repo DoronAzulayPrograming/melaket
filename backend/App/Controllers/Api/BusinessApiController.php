@@ -67,9 +67,9 @@ class BusinessApiController extends ApiController {
         if(isset($body->createDate)) 
             unset($body->createDate);
 
-        if(!BusinessValidation::Put($body)){
-            return $this->badRequset(BusinessValidation::$error);
-        }
+        // if(!BusinessValidation::Put($body)){
+        //     return $this->badRequset(BusinessValidation::$error);
+        // }
 
         if(isset($body->email) && $this->repo->where("email", "=", $body->email)->where("id","!=",$id)->exists())
             return $this->badRequset("Email is already exists in the database.");
@@ -89,9 +89,9 @@ class BusinessApiController extends ApiController {
         $body->id = 0;
         $body->createDate = DateOnly::Now();
 
-        if(!BusinessValidation::Post($body)){
-            return $this->badRequset(BusinessValidation::$error);
-        }
+        // if(!BusinessValidation::Post($body)){
+        //     return $this->badRequset(BusinessValidation::$error);
+        // }
 
         if($this->repo->existsWhere("email","=", $body->email)){
             return $this->badRequset("email already exist.!");

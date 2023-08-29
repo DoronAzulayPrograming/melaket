@@ -56,7 +56,7 @@ class AccountsApiController extends ApiController {
     #[a\HttpPut(":id")]
     function update(int $id, RequestBody $body){
         if(!isset($body->id) || $body->id != $id)
-            return $this->badRequset("id and body id not match.!");
+            return $this->badRequset("מזהה ומזהה בגוף הבקשה צריכים להיות שווים.!");
 
         if(isset($body->password))
             unset($body->password);
@@ -73,7 +73,7 @@ class AccountsApiController extends ApiController {
 
             foreach ($body->roles as $role) {
                 if(!array_key_exists($role, $this->roles))
-                    return $this->badRequset("roles contain unknon role");
+                    return $this->badRequset("בקשה מכילה הרשאות לא ידועות");
             }
 
             $body->roles = implode(",", $body->roles);

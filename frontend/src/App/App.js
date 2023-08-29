@@ -6,7 +6,7 @@ import { Navbar, Container, Nav } from 'react-bootstrap';
 import LoginPage from './Pages/LoginPage';
 import Dashboard from './Pages/Dashboard';
 import UsersPage from './Pages/UsersPage';
-import BusinessPage from './Pages/BusinessPage';
+import BusinessesPage from './Pages/BusinessesPage';
 
 import { AuthContext, AuthorizeView, Authorized, NotAuthorized } from './AuthProvider';
 import { secureLocalStorage } from './SecureStorage';
@@ -23,7 +23,7 @@ function App() {
           <Route exact path="/login" element={<LoginPage />} />
           <Route exact path="/dashboard" element={<DashboardLayout> <Dashboard /></DashboardLayout>} />
           <Route exact path="/dashboard-users" element={<DashboardLayout> <UsersPage /></DashboardLayout>} />
-          <Route exact path="/dashboard-business" element={<DashboardLayout> <BusinessPage /></DashboardLayout>} />
+          <Route exact path="/dashboard-business" element={<DashboardLayout> <BusinessesPage /></DashboardLayout>} />
         </Routes>
       </Router>
     </>
@@ -69,8 +69,7 @@ function DashboardLayout({ children }) {
 }
 
 function DashboardNavBar() {
-  const [user, setUser] = useState(secureLocalStorage.getItem("u"))
-  const { isLoggedIn, setIsLoggedIn, roles, setRoles } = useContext(AuthContext);
+  const { isLoggedIn, setIsLoggedIn, roles, setRoles, user } = useContext(AuthContext);
   function logout(e) {
     e.preventDefault();
     secureLocalStorage.removeItem('u');
@@ -90,7 +89,7 @@ function DashboardNavBar() {
           </div>
         </div>
         <div className='col'>
-          <h4><b>{user.email}</b></h4>
+          <h4><b>{user.name}</b></h4>
         </div>
       </div>
 

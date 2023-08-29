@@ -1,116 +1,104 @@
-import React, { useState, useEffect, useContext } from "react";
+import React,{ useState, useEffect, useContext } from "react"
+import { toast } from "react-toastify"
 import { useForm } from 'react-hook-form';
-import { toast } from "react-toastify";
-
 import { useTable, usePagination, useSortBy, useFilters } from 'react-table';
+import { ButtonGroup, Button, Modal,Form,Row,Col } from "react-bootstrap";
 
-import { ButtonGroup, Container, Row, Col, Form, Button, Modal } from "react-bootstrap";
+import {Business as BusinessApi} from "../Core/Api/MelaketApi"
 
-import AutocompleteInput from "../Components/AutocompleteInput";
+export default function BusinessesPage(){
+    const [businesses, setBusinesses] = useState([])
+    const [selectedBusiness, setSelectedBusiness] = useState(null)
 
-import {Users as UsersApi} from "../Core/Api/MelaketApi";
-
-export default function UsersPage() {
-    const [users, setUsers] = useState([])
-    const [selectedUser, setSelectedUser] = useState(null)
     const [addModalShow, setAddModalShow] = useState(false)
     const [editModalShow, setEditModalShow] = useState(false)
     const [deleteModalShow, setDeleteModalShow] = useState(false)
-
+    
     useEffect(() => {
-        const loadUsers = async ()=>{
+        const loadData = async ()=>{
             try {
-                const data = await UsersApi.getAsync();
-                setUsers(data);
+                const data = await BusinessApi.getAsync();
+                setBusinesses(data);
             } catch (error) {
                 toast.error(error.message)
             }
         }
-        loadUsers()
+        loadData()
     }, [])
 
-    async function handleSubmit(data) {
+    async function handleAdd(data){
         try {
-            const res = await UsersApi.postAsync(data);
-            setUsers([...users, res])
+            const res = await BusinessApi.postAsync(data);
+            setBusinesses([...businesses, res])
 
             setAddModalShow(false)
-            toast.success("משתמש נוצר בהצלחה")
+            toast.success("עסק נוצר בהצלחה")
         } catch (error) {
-            toast.error(`שגיאה ביצירת משתמש: ${error.message}`)
+            toast.error(`שגיאה ביצירת עסק: ${error.message}`)
             return
         }
     }
 
-    async function handleUpdate(user) {
-        user.id = selectedUser.id
-        delete user.name
+    async function handleUpdate(data) {
+        data.id = selectedBusiness.id
 
         try {
-            const res = await UsersApi.putAsync(user);
+            const res = await BusinessApi.putAsync(data);
 
             // Update the local user list after successful API update
-            const updatedUsers = [...users]; // Make a copy of the current users
-            const index = updatedUsers.findIndex(u => u.id === user.id); // Find the index of the updated user
+            const updatedBusiness = [...businesses]; // Make a copy of the current users
+            const index = updatedBusiness.findIndex(i => i.id === data.id); // Find the index of the updated user
             if (index !== -1) {
-                updatedUsers[index] = res; // Replace the old user data with the updated data
-                setUsers(updatedUsers); // Update the state
+                updatedBusiness[index] = data; // Replace the old user data with the updated data
+                setBusinesses(updatedBusiness); // Update the state
             }
 
             setEditModalShow(false);
-            setSelectedUser(null)
-            toast.success("משתמש עודכן בהצלחה");
+            setSelectedBusiness(null)
+            toast.success("עסק עודכן בהצלחה");
 
         } catch (error) {
-            toast.error(`שגיאה בעדכון משתמש: ${error.message}`)
+            toast.error(`שגיאה בעדכון עסק: ${error.message}`)
             return
         }
     }
 
-    const handleDeleteUser = async () => {
+    const handleDelete = async () => {
         
         try {
-            await UsersApi.deleteAsync(selectedUser.id);
+            await BusinessApi.deleteAsync(selectedBusiness.id);
                 
-            setUsers(prevUsers => prevUsers.filter(u => u.id !== selectedUser.id))
+            setBusinesses(prev => prev.filter(b => b.id !== selectedBusiness.id))
             setDeleteModalShow(false)
-            setSelectedUser(null)
-            toast.success("משתמש נמחק בהצלחה")
+            setSelectedBusiness(null)
+            toast.success("עסק נמחק בהצלחה")
         } catch (error) {
-            toast.error(`שגיאה במחיקת משתמש: ${error.message}`)
+            toast.error(`שגיאה במחיקת עסק: ${error.message}`)
         }
-    };
+    }
 
-
-    const handleOpenEditModal = (user) => {
-        setSelectedUser(user)
+    const handleOpenEditModal = (business) => {
+        setSelectedBusiness(business)
         setEditModalShow(true)
     }
-    const handleCloseEditModal = (user) => {
-        setSelectedUser(null)
+    const handleCloseEditModal = () => {
+        setSelectedBusiness(null)
         setEditModalShow(false)
     }
 
-    const handleOpenDeleteModal = (user) => {
-        setSelectedUser(user)
+    const handleOpenDeleteModal = (business) => {
+        setSelectedBusiness(business)
         setDeleteModalShow(true)
     }
-    const handleCloseDeleteModal = (user) => {
-        setSelectedUser(null)
+    const handleCloseDeleteModal = () => {
+        setSelectedBusiness(null)
         setDeleteModalShow(false)
     }
-
     return (
         <>
-            <Container className="p-3">
-                <Row className="justify-content-center">
-                    <Col sm md="10" className="p-0">
-                        <UsersTable users={users} onDelete={handleOpenDeleteModal} onEdit={handleOpenEditModal} >
-                            <Button onClick={() => setAddModalShow(true)} size="sm">הוספת משתמש</Button>
-                        </UsersTable>
-                    </Col>
-                </Row>
-            </Container>
+            <BusinessesTable businesses={businesses} onEdit={handleOpenEditModal} onDelete={handleOpenDeleteModal} >
+                <Button onClick={() => setAddModalShow(true)} size="sm">הוספת עסק</Button>
+            </BusinessesTable>
 
             <Modal
                 show={addModalShow}
@@ -122,18 +110,18 @@ export default function UsersPage() {
             >
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title-vcenter">
-                        הוספת משתמש
+                        הוספת עסק
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <UserForm onSubmit={handleSubmit} />
+                    <BusinessForm onSubmit={handleAdd} />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setAddModalShow(false)}>סגירה</Button>
                 </Modal.Footer>
             </Modal>
 
-            {selectedUser &&
+            {selectedBusiness &&
                 <Modal
                     show={editModalShow}
                     onHide={handleCloseEditModal}
@@ -148,14 +136,14 @@ export default function UsersPage() {
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <UserForm user={selectedUser} onSubmit={handleUpdate} />
+                        <BusinessForm business={selectedBusiness} onSubmit={handleUpdate} />
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={handleCloseEditModal}>סגירה</Button>
                     </Modal.Footer>
                 </Modal>}
-
-            {selectedUser &&
+            
+            {selectedBusiness &&
                 <Modal
                     show={deleteModalShow}
                     onHide={handleCloseDeleteModal}
@@ -170,10 +158,10 @@ export default function UsersPage() {
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        בטוח שברצונך למחוק משתמש זה ? {selectedUser.email}
+                        בטוח שברצונך למחוק עסק זה ? {selectedBusiness.name}
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="danger" onClick={handleDeleteUser}>אישור</Button>
+                        <Button variant="danger" onClick={handleDelete}>אישור</Button>
                         <Button variant="secondary" onClick={handleCloseDeleteModal}>סגירה</Button>
                     </Modal.Footer>
                 </Modal>}
@@ -181,28 +169,11 @@ export default function UsersPage() {
     )
 }
 
-function UserForm(props) {
-    const rolesArray = ["subAdmin", "member", "admin"];
-    const roleDisplayNames = {
-        "admin": "מנהל מערכת",
-        "subAdmin": "עסק",
-        "member": "עובד"
-    };
 
-    const [user, setUser] = useState(props.user ?? { businessId: 0, email: "", name: "", password: "123", roles: ["subAdmin"] });
+function BusinessForm(props) {
+    const [business, setBusiness] = useState(props.business ?? { email: "", name: "",codeBinaHost:"",codeBinaUser:"", codeBinaPassword:"",customerNoInBina:"" });
 
     const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm();
-
-    useEffect(() => {
-        setValue('roles', user.roles);
-    }, [user.roles, setValue]);
-
-    // Register the business input for react-hook-form
-    const { businessId } = register("businessId", {
-        required: "יש לבחור עסק.",
-        min: 1
-        // Add other validation logic if needed
-    });
 
     const onSubmit = data => {
         if (!props.onSubmit) return
@@ -211,36 +182,28 @@ function UserForm(props) {
         props.onSubmit(data);
     };
 
-    const handleRoleChange = (e) => {
-        const value = e.target.value;
-        let updatedRoles = [...user.roles];
-
-        if (e.target.checked) {
-            updatedRoles.push(value);
-        } else {
-            const index = updatedRoles.indexOf(value);
-            if (index > -1) {
-                updatedRoles.splice(index, 1);
-            }
-        }
-
-        setValue("roles", updatedRoles, { shouldValidate: true })
-        setUser(prev => ({ ...prev, roles: updatedRoles }));
-    };
-    const validateRoles = (value) => {
-        return (value && value.length > 0) || "יש לבחור לפחות הרשאה אחת.";
-    };
-
     return (
         <Form onSubmit={handleSubmit(onSubmit)}>
             <Row>
+                <Col md="6 mb-2">
+                    {/* Name Input */}
+                    <Form.Group controlId="name">
+                        <Form.Label>שם</Form.Label>
+                        <Form.Control
+                            type="name"
+                            defaultValue={business.name}
+                            {...register("name", { required: "שדה זה הינו חובה." })}
+                        />
+                        {errors.name && <p className="text-danger">{errors.name.message}</p>}
+                    </Form.Group>
+                </Col>
                 <Col md="6 mb-2">
                     {/* Email Input */}
                     <Form.Group controlId="email">
                         <Form.Label>אימייל</Form.Label>
                         <Form.Control style={{ direction: "rtl" }}
                             type="text"
-                            defaultValue={user.email}
+                            defaultValue={business.email}
                             {...register("email", {
                                 required: "שדה זה הינו חובה.",
                                 pattern: {
@@ -253,68 +216,60 @@ function UserForm(props) {
                     </Form.Group>
                 </Col>
 
+
                 <Col md="6 mb-2">
                     {/* Name Input */}
-                    <Form.Group controlId="name">
-                        <Form.Label>שם</Form.Label>
+                    <Form.Group controlId="codeBinaHost">
+                        <Form.Label>מארח קוד בינה</Form.Label>
                         <Form.Control
-                            type="name"
-                            defaultValue={user.name}
-                            {...register("name", { required: "שדה זה הינו חובה." })}
+                            type="text"
+                            defaultValue={business.codeBinaHost}
+                            {...register("codeBinaHost", { required: "שדה זה הינו חובה.",
+                                pattern: {
+                                    value: /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i,
+                                    message: "כתובת לא חוקית"
+                                }
+                            })}
                         />
-                        {errors.name && <p className="text-danger">{errors.name.message}</p>}
+                        {errors.codeBinaHost && <p className="text-danger">{errors.codeBinaHost.message}</p>}
                     </Form.Group>
                 </Col>
-                    {/* Password Input */}
-                    {!props.user &&
                 <Col md="6 mb-2">
-                        <Form.Group controlId="password">
-                            <Form.Label>סיסמא</Form.Label>
+                    {/* Name Input */}
+                    <Form.Group controlId="codeBinaUser">
+                        <Form.Label>משתמש קוד בינה</Form.Label>
+                        <Form.Control
+                            type="text"
+                            defaultValue={business.codeBinaUser}
+                            {...register("codeBinaUser", { required: "שדה זה הינו חובה." })}
+                        />
+                        {errors.codeBinaUser && <p className="text-danger">{errors.codeBinaUser.message}</p>}
+                    </Form.Group>
+                </Col>
+                <Col md="6 mb-2">
+                        <Form.Group controlId="codeBinaPassword">
+                            <Form.Label>סיסמא קוד בינה</Form.Label>
                             <Form.Control
                                 type="password"
-                                defaultValue={user.password}
-                                {...register("password", { required: "שדה זה הינו חובה." })}
+                                defaultValue={business.codeBinaPassword}
+                                {...register("codeBinaPassword", { required: "שדה זה הינו חובה." })}
                             />
-                            {errors.password && <p className="text-danger">{errors.password.message}</p>}
+                            {errors.codeBinaPassword && <p className="text-danger">{errors.codeBinaPassword.message}</p>}
                         </Form.Group>
-                </Col>}
+                </Col>
                 <Col md="6 mb-2">
-                    <Form.Group controlId="businessId">
-                        <Form.Label>עסקים</Form.Label>
-                        <AutocompleteInput
-                            value={user.businessId}
-                            url="http://localhost:5000/api/business"
-                            onSelect={(selectedItem) => {
-                                if (selectedItem)
-                                    setValue("businessId", selectedItem.id, { shouldValidate: true });
-                                else
-                                    setValue("businessId", null, { shouldValidate: true });
-                            }}
+                    {/* Name Input */}
+                    <Form.Group controlId="customerNoInBina">
+                        <Form.Label>מזהה לקוח קוד בינה</Form.Label>
+                        <Form.Control
+                            type="text"
+                            defaultValue={business.customerNoInBina}
+                            {...register("customerNoInBina", { required: "שדה זה הינו חובה." })}
                         />
-                        {errors.businessId && <p className="text-danger">{errors.businessId.message}</p>}
+                        {errors.customerNoInBina && <p className="text-danger">{errors.customerNoInBina.message}</p>}
                     </Form.Group>
                 </Col>
-                <Col md="6">
-                    {/* Roles Input */}
-                    <Form.Group>
-                        <input type="hidden" {...register('roles', { validate: validateRoles })} />
 
-                        <Form.Label>הרשאות</Form.Label>
-                        {rolesArray.map((role, index) => (
-                            <div key={index}>
-                                <Form.Check
-                                    id={`role-${role}`}
-                                    type="checkbox"
-                                    label={roleDisplayNames[role]}
-                                    value={role}
-                                    checked={user.roles.includes(role)}
-                                    onChange={handleRoleChange}
-                                />
-                            </div>
-                        ))}
-                    </Form.Group>
-                    {errors.roles && <p className="text-danger">{errors.roles.message}</p>}
-                </Col>
 
                 <Col md="12 pt-2">
                     <Button variant="primary" type="submit">
@@ -326,16 +281,18 @@ function UserForm(props) {
     );
 }
 
-function UsersTable(props) {
+
+
+function BusinessesTable(props) {
     const users = React.useMemo(() => {
-        const reversedUsers = [...props.users].reverse();
-        return reversedUsers.map((user, index) => {
+        const reversedUsers = [...props.businesses].reverse();
+        return reversedUsers.map((business, index) => {
             return {
-                ...user,
+                ...business,
                 index: index + 1 // Reversing the index directly
             };
         });
-    }, [props.users]);
+    }, [props.businesses]);
 
     function DefaultColumnFilter({
         column: { filterValue, preFilteredRows, setFilter },
@@ -359,13 +316,12 @@ function UsersTable(props) {
             { Header: "מזהה", accessor: "id" },
             { Header: "שם", accessor: "name" },
             { Header: "אימייל", accessor: "email" },
-            { Header: "עסק", accessor: "business.name" },
             {
                 Header: 'פעולות',
                 Cell: ({ row }) => (
                     <ButtonGroup>
                         <Button size="sm" onClick={() => props.onEdit(row.original)}>עריכה</Button>
-                        <Button size="sm" variant="danger" onClick={() => handleDeleteUser(row.original)}>מחיקה</Button>
+                        <Button size="sm" variant="danger" onClick={() => handleDelete(row.original)}>מחיקה</Button>
                     </ButtonGroup>
                 ),
                 disableFilters: true,
@@ -402,7 +358,7 @@ function UsersTable(props) {
 
     const [showFilters, setShowFilters] = useState(false)
 
-    const handleDeleteUser = async (user) => {
+    const handleDelete = async (user) => {
         props.onDelete(user)
     };
 
