@@ -1,0 +1,26 @@
+html, body, #root {
+    height: 100%;
+    width: 100%; 
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+#wrapper {
+    height: 100%;
+    width: 100%; 
+    margin: 0;
+    display: flex;
+}
+
+#sidebar {
+    max-width: 200px; /* Adjust as needed */
+    min-width: 200px; /* Adjust as needed */
+    height: 100%;
+    overflow-y: auto; /* Enable vertical scrolling if necessary */
+    background-color: #f5f5f5; /* Adjust as needed */
+}
+
+#content {
+    flex-grow: 1; /* Take up the rest of the space */
+    overflow-y: scroll;
+}

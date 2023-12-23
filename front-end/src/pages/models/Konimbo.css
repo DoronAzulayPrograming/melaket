@@ -1,0 +1,36 @@
+/* div[data-size="A4"] table, 
+div[data-size="A4"] th, 
+div[data-size="A4"] td {
+    border: 0.4pt solid #818181;
+    border-collapse: collapse;
+}
+div[data-size="A4"] th, 
+div[data-size="A4"] td {
+    padding-right: 2px;
+}
+div[data-size="A4"] {
+    display: block;
+    margin: 0 auto;
+    width: 21cm;
+    height: 29.7cm; 
+    position: relative;
+    font-family: "David";
+    line-height: 0.950684;
+    font-style: normal;
+    font-weight: normal;
+    visibility: visible;
+}
+div[data-size="A4"][layout="portrait"] {
+    width: 29.7cm;
+    height: 21cm;  
+}
+@media print {
+    div[data-size="A4"] table, 
+    div[data-size="A4"] th, 
+    div[data-size="A4"] td {
+        border: 0.4pt solid #818181;
+    }
+    div[data-size="A4"] {
+        box-shadow: unset;
+    }
+} */

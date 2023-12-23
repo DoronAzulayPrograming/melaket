@@ -1,0 +1,61 @@
+{
+    "Main": {
+        "CustomerCity":"נקודת איסוף",
+        "CustomerStreet":"נקודת איסוף",
+        "CustomerZipCode":"0000000",
+        "Warehouse": 1,
+        "SortingNumber": 14385424,
+        "CustomerNo": 520002,
+        "Remark": "\u05de\u05d7\u05e1\u05df: \u05de\u05d9\u05e9\u05d5\u05e8 \u05d0\u05d3\u05d5\u05de\u05d9\u05dd | \u05de\u05dc\u05e7\u05d8: \u05d1\u05e0\u05e7\u05e1\u05d8",
+        "Currency": {
+            "Type": 1
+        },
+        "DocType": 320,
+        "VatPercent": 17,
+        "DiscountPercent": 0,
+        "Price": "79.000",
+        "PriceBeforeVat": "67.521",
+        "CustomerPhone": "0507061379",
+        "CustomerName": "\u05d8\u05dc\u05d9\u05d4 \u05e0\u05e2\u05d9\u05dd"
+    },
+    "Details": [
+        {
+            "Amount": 1,
+            "ItemNo": "110212",
+            "DiscountPercent": 0,
+            "ItemName": "\u05d3\u05d9\u05d5 \u05e9\u05d7\u05d5\u05e8 \u05ea\u05d5\u05d0\u05dd \u05e4\u05e8\u05d9\u05de\u05d9\u05d5\u05dd Canon PG545XL (\u05d4\u05e1\u05e4\u05e7 400 \u05d3\u05e3)",
+            "PriceUnit": "67.521",
+            "Price": "67.521",
+            "ItemMustVat": true,
+            "Currency": {
+                "Type": 1
+            },
+            "Warehouse": 1,
+            "Barcode": "110212"
+        },
+        {
+            "Amount": 1,
+            "ItemNo": "980014",
+            "DiscountPercent": 0,
+            "ItemName": "\u05de\u05e9\u05dc\u05d5\u05d7 \u05d7\u05d9\u05e0\u05dd \u05dc\u05e0\u05e7\u05d5\u05d3\u05ea \u05d0\u05d9\u05e1\u05d5\u05e3",
+            "PriceUnit": "0.000",
+            "Price": "0.000",
+            "ItemMustVat": true,
+            "Currency": {
+                "Type": 1
+            },
+            "Warehouse": 1,
+            "Barcode": "980014"
+        }
+    ],
+    "Receipts": [
+        {
+            "__type": "Credit",
+            "Sum": "79.000",
+            "CreditNo": "7913",
+            "CustomerID": "039863006",
+            "SolekNo": 22,
+            "TransactionType": 1
+        }
+    ]
+}

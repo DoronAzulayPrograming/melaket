@@ -1,0 +1,67 @@
+{
+    "Main": {
+        "CustomerNo": 520002,
+        "DocType": 320,
+        "CustomerName": "\u05d7\u05e0\u05d9 \u05d2\u05e8\u05d9\u05e0\u05d1\u05e8\u05d2",
+        "CustomerPhone": "0585577022",
+        "CustomerStreet": "\u05e0\u05e7\u05d5\u05d3\u05ea \u05d0\u05d9\u05e1\u05d5\u05e3 00",
+        "CustomerCity": "\u05e0\u05e7\u05d5\u05d3\u05ea \u05d0\u05d9\u05e1\u05d5\u05e3",
+        "CustomerZipCode": "00000",
+        "Currency": {
+            "Type": 1
+        },
+        "SortingNumber": "14365287",
+        "VatPercent": 17,
+        "Price": "39.000",
+        "DiscountPercent": 0,
+        "PriceBeforeVat": "33.333",
+        "Warehouse": "1",
+        "FreeTxt": "",
+        "FreeLbl": "",
+        "Remark": "\u05de\u05d7\u05e1\u05df: \u05de\u05d9\u05e9\u05d5\u05e8 \u05d0\u05d3\u05d5\u05de\u05d9\u05dd | \u05de\u05dc\u05e7\u05d8: \u05e2\u05d3\u05df"
+    },
+    "Details": [
+        {
+            "Amount": 1,
+            "Barcode": "6925281918964",
+            "ItemNo": "200234",
+            "DiscountPercent": 0,
+            "ItemName": "\u05d0\u05d5\u05d6\u05e0\u05d9\u05d5\u05ea \u200f\u05d7\u05d5\u05d8\u05d9\u05d5\u05ea JBL C100SI \u05e9\u05d7\u05d5\u05e8",
+            "PriceUnit": "33.333",
+            "Price": "33.333",
+            "ItemMustVat": true,
+            "Currency": {
+                "Type": 1
+            },
+            "Warehouse": "1"
+        },
+        {
+            "Barcode": "",
+            "ItemName": "\u05de\u05e1\u05e4\u05e8 \u05e1\u05d9\u05d3\u05d5\u05e8\u05d9: KT0030-AM6319569"
+        },
+        {
+            "Amount": 1,
+            "Barcode": "980014",
+            "ItemNo": "980014",
+            "DiscountPercent": 0,
+            "ItemName": "\u05de\u05e9\u05dc\u05d5\u05d7 \u05d7\u05d9\u05e0\u05dd \u05dc\u05e0\u05e7\u05d5\u05d3\u05ea \u05d0\u05d9\u05e1\u05d5\u05e3",
+            "PriceUnit": "0.000",
+            "Price": "0.000",
+            "ItemMustVat": true,
+            "Currency": {
+                "Type": 1
+            },
+            "Warehouse": "1"
+        }
+    ],
+    "Receipts": [
+        {
+            "__type": "Credit",
+            "Sum": "39.000",
+            "CreditNo": "3875",
+            "CustomerID": "323994038",
+            "SolekNo": 22,
+            "TransactionType": 1
+        }
+    ]
+}

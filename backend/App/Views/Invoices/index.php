@@ -1,0 +1,1 @@
+<h1>Hello from Invoices/index</h1>
